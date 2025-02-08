@@ -2,7 +2,9 @@ package com.lapdev.eventos_api.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
@@ -40,6 +42,15 @@ public class S3Service {
                 .build();
 
         return s3Presigner.presignGetObject(presignRequest).url().toString();
+    }
+
+    // Faz o teste para verificar se está configurado corretamente e imprime a lista de buckets
+    public void s3ListBucketsTest(){
+        S3Client s3 = S3Client.create();
+        ListBucketsResponse response = s3.listBuckets();
+        response.buckets().forEach(bucket ->
+                System.out.println("Bucket: " + bucket.name())
+        );
     }
 }
 
