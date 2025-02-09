@@ -1,6 +1,8 @@
 package com.lapdev.eventos_api.service;
 
+import com.lapdev.eventos_api.domain.coupon.Coupon;
 import com.lapdev.eventos_api.domain.events.Event;
+import com.lapdev.eventos_api.domain.events.EventDetailsDTO;
 import com.lapdev.eventos_api.domain.events.EventRequestDTO;
 import com.lapdev.eventos_api.domain.events.EventResponseDTO;
 import com.lapdev.eventos_api.repositories.EventRepository;
@@ -19,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -37,6 +40,9 @@ public class EventService {
 
     @Autowired
     private  AddressService addressService;
+
+    @Autowired
+    private CouponService couponService;
 
     public Event createEvent(EventRequestDTO data){
         String imgUrl = null;
@@ -110,6 +116,32 @@ public class EventService {
                 .stream().toList();
     }
 
+    public EventDetailsDTO getEventDetails(UUID eventId){
+        Event event = repository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        List<Coupon> coupons = couponService.consultCoupons(eventId, new Date());
+
+        List<EventDetailsDTO.CouponDTO> couponDTOS = coupons.stream()
+                .map(coupon -> new EventDetailsDTO.CouponDTO(
+                        coupon.getCode(),
+                        coupon.getDiscount(),
+                        coupon.getValid()
+                )).collect(Collectors.toList());
+
+        return new EventDetailsDTO(
+                event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getDate(),
+                event.getAddress() != null ? event.getAddress().getCity() : "",
+                event.getAddress() != null ? event.getAddress().getUf() : "",
+                event.getRemote(),
+                event.getEventUrl(),
+                event.getImgUrl(),
+                couponDTOS
+        );
+    }
     private String uploadImg(MultipartFile multipartFile){
         String fileName = UUID.randomUUID() + "-" + multipartFile.getOriginalFilename();
 
