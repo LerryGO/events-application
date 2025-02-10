@@ -11,14 +11,12 @@ import java.util.UUID;
 
 @Table(name = "address")
 @Entity
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Address {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID ID;
 
     private String city;
@@ -28,4 +26,36 @@ public class Address {
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
+
+    public UUID getID() {
+        return ID;
+    }
+
+    public void setID(UUID ID) {
+        this.ID = ID;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getUf() {
+        return uf;
+    }
+
+    public void setUf(String uf) {
+        this.uf = uf;
+    }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
+    }
 }

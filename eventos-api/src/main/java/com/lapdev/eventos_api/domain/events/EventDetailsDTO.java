@@ -11,6 +11,7 @@ public record EventDetailsDTO(
         Date date,
         String city,
         String uf,
+        Boolean remote,
         String imgUrl,
         String eventUrl,
         List<CouponDTO> coupons
