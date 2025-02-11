@@ -24,7 +24,8 @@ public class S3Service {
 
     // Retorna uma URL pública (apenas se o bucket permitir acesso público)
     public String getPublicUrl(String bucketName, String fileName) {
-        return "https://" + bucketName + ".s3." + awsRegion + ".amazonaws.com/" + fileName;
+        String encodedFileName = fileName.replaceAll(" ", "%20");
+        return "https://" + bucketName + ".s3." + awsRegion + ".amazonaws.com/" + encodedFileName;
     }
 
 

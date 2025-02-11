@@ -2,7 +2,7 @@ package com.lapdev.eventos_api.domain.user;
 
 public enum UserRole {
     ADMIN("admin"),
-    USEER("user");
+    USER("user");
 
     private String role;
 
