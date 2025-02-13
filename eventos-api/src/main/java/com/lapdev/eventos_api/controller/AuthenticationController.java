@@ -1,8 +1,10 @@
 package com.lapdev.eventos_api.controller;
 
 import com.lapdev.eventos_api.domain.user.AuthenticationDTO;
+import com.lapdev.eventos_api.domain.user.LoginResponseDTO;
 import com.lapdev.eventos_api.domain.user.RegisterDTO;
 import com.lapdev.eventos_api.domain.user.User;
+import com.lapdev.eventos_api.infra.security.TokenService;
 import com.lapdev.eventos_api.repositories.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +28,17 @@ public class AuthenticationController {
     @Autowired
     private UserRepository repository;
 
+    @Autowired
+    private TokenService tokenService;
+
     @PostMapping("/login")
-    public ResponseEntity login (@RequestBody @Valid AuthenticationDTO data ){
+    public ResponseEntity<?> login (@RequestBody @Valid AuthenticationDTO data ){
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         try {
             var auth = this.authenticationManager.authenticate(usernamePassword);
-            System.out.println("Autenticação bem-sucedida!");
-            return ResponseEntity.ok().build();
+
+            var token = tokenService.generateToken((User) auth.getPrincipal());
+            return ResponseEntity.ok(new LoginResponseDTO(token));
         } catch (Exception e) {
             System.out.println("Falha na autenticação: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
@@ -40,7 +46,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid RegisterDTO data){
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data){
         if(this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
